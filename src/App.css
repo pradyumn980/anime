@@ -1,0 +1,69 @@
+/* Import Inter font at the very top */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Slightly increase line-height for better readability */
+    line-height: 1.6;
+  }
+
+  a {
+    @apply text-emerald-600 hover:text-emerald-800 transition-colors duration-300 font-semibold;
+    /* add subtle underline on hover */
+    position: relative;
+  }
+  a:hover::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background-color: #000000; /* darker emerald */
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  button {
+    @apply bg-emerald-600 text-white px-5 py-3 rounded-md shadow-md 
+      hover:bg-emerald-700 transition-colors duration-300 font-semibold 
+      focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  button, a {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Add subtle scrollbar styling for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #00754e; /* emerald-500 */
+    border-radius: 10px;
+    border: 8px solid transparent;
+    background-clip: content-box;
+  }
+}
+
+/* Additional custom utility for card shadows */
+@layer utilities {
+  .card-shadow {
+    @apply shadow-lg hover:shadow-2xl transition-shadow duration-300;
+  }
+}

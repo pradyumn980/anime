@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light mode palette - calm and balanced */
+    --background: 210 40% 98%;            /* Very soft blue-gray */
+    --foreground: 222 15% 15%;            /* Dark slate */
+
+    --card: 0 0% 100%;                    /* Pure white */
+    --card-foreground: 222 15% 15%;       /* Dark slate */
+
+    --popover: 210 30% 96%;               /* Soft pastel blue */
+    --popover-foreground: 222 15% 15%;    /* Dark slate */
+
+    --primary: 204 90% 53%;               /* Vivid royal blue */
+    --primary-foreground: 210 100% 98%;   /* Almost white */
+
+    --secondary: 270 60% 65%;             /* Medium purple */
+    --secondary-foreground: 270 80% 20%;  /* Dark purple */
+
+    --muted: 210 20% 80%;                 /* Pale blue-gray */
+    --muted-foreground: 210 15% 45%;      /* Medium gray */
+
+    --accent: 42 90% 60%;                 /* Warm amber */
+    --accent-foreground: 42 95% 98%;      /* Pale cream */
+
+    --destructive: 0 75% 60%;             /* Strong red */
+    --destructive-foreground: 0 0% 98%;  /* White */
+
+    --border: 210 15% 85%;                /* Light gray */
+    --input: 210 15% 85%;
+    --ring: 204 90% 60%;                  /* Bright royal blue */
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Dark mode palette - rich but soft */
+    --background: 222 15% 12%;            /* Deep navy */
+    --foreground: 210 100% 95%;            /* Off-white */
+
+    --card: 222 15% 20%;                   /* Dark navy card */
+    --card-foreground: 210 100% 95%;       /* Off-white */
+
+    --popover: 222 15% 25%;                /* Slightly lighter navy */
+    --popover-foreground: 210 100% 95%;    /* Off-white */
+
+    --primary: 204 90% 65%;                /* Vibrant royal blue */
+    --primary-foreground: 222 15% 12%;     /* Deep navy */
+
+    --secondary: 270 60% 55%;              /* Medium purple */
+    --secondary-foreground: 270 80% 80%;   /* Light purple */
+
+    --muted: 222 15% 40%;                  /* Dark muted blue */
+    --muted-foreground: 222 15% 70%;       /* Medium gray */
+
+    --accent: 42 85% 55%;                  /* Warm amber */
+    --accent-foreground: 42 95% 90%;       /* Pale cream */
+
+    --destructive: 0 80% 45%;              /* Deep red */
+    --destructive-foreground: 210 100% 95%; /* Off-white */
+
+    --border: 222 15% 30%;                 /* Dark gray */
+    --input: 222 15% 30%;
+    --ring: 204 90% 65%;                   /* Bright royal blue */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))];
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    line-height: 1.6;
+  }
+
+  a, button {
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .card-shadow {
+    @apply shadow-lg hover:shadow-2xl transition-shadow duration-300
+      rounded-[var(--radius)] bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))];
+  }
+
+  .anime-img {
+    @apply object-cover rounded-[var(--radius)] aspect-square max-w-[150px] shadow-md;
+  }
+
+  .btn-primary {
+    @apply bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]
+      font-semibold px-5 py-2 rounded-[var(--radius)] shadow-md
+      hover:bg-[hsl(var(--primary-foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300;
+  }
+
+  .btn-secondary {
+    @apply bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))]
+      font-semibold px-4 py-2 rounded-[var(--radius)] shadow-sm
+      hover:bg-[hsl(var(--secondary-foreground))] hover:text-[hsl(var(--secondary))] transition-colors duration-300;
+  }
+}
