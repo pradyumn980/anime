@@ -5,6 +5,12 @@
 @tailwind utilities;
 
 @layer base {
+  
+  html,
+  body,
+  #root {
+    @apply w-full h-full m-0 p-0;
+  }
   :root {
     /* Light mode palette - calm and balanced */
     --background: 210 40% 98%;            /* Very soft blue-gray */
