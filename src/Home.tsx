@@ -1,5 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useCallback, useState } from "react";
+import { Link } from "react-router-dom";
+
 import {
   Card,
   CardContent,
@@ -119,11 +121,12 @@ export function Home() {
               />
 
               <CardHeader className="p-4">
-                <CardTitle className="text-lg font-semibold line-clamp-2 text-emerald-300">
-                  <a href={anime.url} target="_blank" rel="noreferrer" className="hover:underline">
-                    {anime.title}
-                  </a>
-                </CardTitle>
+               <CardTitle className="text-lg font-semibold line-clamp-2 text-emerald-300">
+  <Link to={`/anime/${anime.mal_id}`} className="hover:underline">
+    {anime.title}
+  </Link>
+</CardTitle>
+
                 <CardDescription className="text-sm text-gray-300 mt-1">
                   {anime.type} • {anime.episodes ?? "?"} eps • {anime.duration ?? "?"}
                 </CardDescription>

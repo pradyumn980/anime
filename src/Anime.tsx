@@ -70,7 +70,6 @@ function AnimeList({ search, type, status }: FormValue) {
     </div>
   );
 }
-
 export function Anime() {
   const [searchParams, setSearchParams] = useState<FormValue>({
     search: "",
