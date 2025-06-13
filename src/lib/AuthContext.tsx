@@ -1,130 +1,134 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
-type UserMetadata = {
-  email?: string;
-  securityQuestion?: string;
-  securityAnswer?: string;
-};
-
-type User = {
+interface User {
   username: string;
-  password: string;
-  metadata?: UserMetadata;
-  avatar?: string; // ✅ store avatar separately on user
-};
+  email: string;
+  avatar?: string;
+}
 
-type AuthContextType = {
+interface AuthContextType {
+  user: User | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => boolean;
+  loading: boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   register: (
     username: string,
     password: string,
-    metadata?: UserMetadata
-  ) => boolean;
-  currentUser?: User | null;
+    extraData: { email: string; securityQuestion: string; securityAnswer: string }
+  ) => Promise<boolean>;
   setAvatar: (url: string) => void;
-};
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Load users and current user from localStorage on mount
+  // Set axios base URL here if your backend is on localhost:9000
+  axios.defaults.baseURL = "http://localhost:8000";
+
+  // On mount, check if token exists and fetch user data
   useEffect(() => {
-    const storedUsers = localStorage.getItem("users");
-    const storedCurrentUser = localStorage.getItem("currentUser");
-
-    if (storedUsers) setUsers(JSON.parse(storedUsers));
-    if (storedCurrentUser) setCurrentUser(JSON.parse(storedCurrentUser));
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+        const res = await axios.get("/api/auth/me");
+        localStorage.setItem("currentUser", JSON.stringify(res.data.user));
+        setUser(res.data.user);
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
   }, []);
 
-  // Save users to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(users));
-  }, [users]);
-
-  // Save currentUser to localStorage
-  useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem("currentUser");
+  // Login function
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const res = await axios.post("/api/auth/login", { username, password });
+      if (res.data.user.token) {
+        localStorage.setItem("token", res.data.user.token);
+        setUser(res.data.user);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      return false;
     }
-  }, [currentUser]);
-
-  const login = (username: string, password: string) => {
-    const foundUser = users.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (foundUser) {
-      setCurrentUser(foundUser);
-      return true;
-    }
-    return false;
   };
 
+  // Logout function
   const logout = () => {
-    setCurrentUser(null);
+    localStorage.removeItem("token");
+    delete axios.defaults.headers.common["Authorization"];
+    setUser(null);
   };
 
-  const register = (
+  
+  const register = async (
     username: string,
     password: string,
-    metadata?: UserMetadata
-  ) => {
-    const exists = users.some((u) => u.username === username);
-    if (exists) return false;
+    extraData: { email: string; securityQuestion: string; securityAnswer: string }
+  ): Promise<boolean> => {
+    try {
+      const res = await axios.post("/api/auth/register", {
+        username,
+        password,
+        ...extraData,
+      });
 
-    const newUser: User = { username, password, metadata };
-    const updatedUsers = [...users, newUser];
-    setUsers(updatedUsers);
-    setCurrentUser(newUser);
-
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-    localStorage.setItem("currentUser", JSON.stringify(newUser));
-
-    return true;
+       if (res.data.user.token) {
+        localStorage.setItem("token", res.data.user.token);
+        setUser(res.data.user);
+        return true;
+      }
+      // Backend should send success status true/false
+      return res.data.success;
+    } catch (err) {
+      return false;
+    }
   };
 
-  const setAvatar = (avatarUrl: string) => {
-    if (currentUser) {
-      const updatedUser = { ...currentUser, avatar: avatarUrl };
-      setCurrentUser(updatedUser);
-
-      const updatedUsers = users.map((u) =>
-        u.username === currentUser.username ? updatedUser : u
-      );
-
-      setUsers(updatedUsers);
-
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
-      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-    }
+  // Set avatar function
+  const setAvatar = (url: string) => {
+    if (!user) return;
+    // Update user avatar in context and localStorage
+    const updatedUser = { ...user, avatar: url };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
   };
 
   return (
     <AuthContext.Provider
       value={{
-        isAuthenticated: currentUser !== null,
+        user,
+        isAuthenticated: !!user,
+        loading,
         login,
         logout,
         register,
         setAvatar,
-        currentUser,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
-}
+};

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useAuth } from "./lib/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 const avatars = [
-  "/avtars/avatar1.jpg",
-  "/avtars/avatar2.jpg",
-  "/avtars/avatar3.jpg",
-  "/avtars/avatar4.jpg",
-  "/avtars/avatar5.jpg",
+  "/avatars/avatar1.jpg", // fixed folder name
+  "/avatars/avatar2.jpg",
+  "/avatars/avatar3.jpg",
+  "/avatars/avatar4.jpg",
+  "/avatars/avatar5.jpg",
 ];
 
 export default function Signup() {
@@ -25,40 +26,66 @@ export default function Signup() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Controls which UI is shown: signup form or avatar picker
+  // Controls UI between signup form and avatar picker
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [registeredUser, setRegisteredUser] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const success = register(
-      formData.username,
-      formData.password,
-      {
+    try {
+      const success = await register(formData.username, formData.password, {
         email: formData.email,
         securityQuestion: formData.securityQuestion,
         securityAnswer: formData.securityAnswer,
-      }
-    );
+      });
 
-    if (success) {
-      setSuccessMessage("Account created! Please choose your avatar.");
-      setError("");
-      setShowAvatarPicker(true); // Show avatar picker after signup
-    } else {
-      setError("Username already exists.");
+      if (success) {
+        setRegisteredUser(formData.username);
+        setSuccessMessage("Account created! Please choose your avatar.");
+        setError("");
+        setShowAvatarPicker(true);
+      } else {
+        setError("Username already exists.");
+        setSuccessMessage("");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
       setSuccessMessage("");
     }
   };
 
-  const handleSelectAvatar = (url: string) => {
-    setAvatar(url);
-    navigate("/"); // redirect to profile page after avatar selection
+  const handleSelectAvatar = async (url: string) => {
+    if (!registeredUser) return;
+
+    try {
+      // Save avatar to backend
+      const res = await axios.post(
+        "http://localhost:8000/api/set-avatar",
+        {
+          avatar: url,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (res.data.user._id) {
+       navigate("/");
+      }
+    } catch (err) {
+      console.error("Failed to save avatar:", err);
+    }
   };
 
   return (
@@ -75,11 +102,15 @@ export default function Signup() {
             </h2>
 
             {error && <p className="text-red-600 mb-4">{error}</p>}
-            {successMessage && <p className="text-green-600 mb-4">{successMessage}</p>}
+            {successMessage && (
+              <p className="text-green-600 mb-4">{successMessage}</p>
+            )}
 
             {/* Username */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Username</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
               <input
                 type="text"
                 name="username"
@@ -92,7 +123,9 @@ export default function Signup() {
 
             {/* Password */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
@@ -105,7 +138,9 @@ export default function Signup() {
 
             {/* Email */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
@@ -116,9 +151,11 @@ export default function Signup() {
               />
             </div>
 
-            {/* Security Question Dropdown */}
+            {/* Security Question */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Security Question</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Security Question
+              </label>
               <select
                 name="securityQuestion"
                 required
@@ -128,14 +165,18 @@ export default function Signup() {
               >
                 <option value="">Select a question</option>
                 <option value="pet">What was your first pet's name?</option>
-                <option value="school">What school did you attend as a child?</option>
+                <option value="school">
+                  What school did you attend as a child?
+                </option>
                 <option value="city">In what city were you born?</option>
               </select>
             </div>
 
             {/* Security Answer */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700">Answer</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Answer
+              </label>
               <input
                 type="text"
                 name="securityAnswer"
@@ -162,7 +203,10 @@ export default function Signup() {
               </Link>
             </p>
             <p className="mt-2 text-sm text-center">
-              <Link to="/reset-password" className="text-blue-600 hover:underline">
+              <Link
+                to="/reset-password"
+                className="text-blue-600 hover:underline"
+              >
                 Forgot password?
               </Link>
             </p>
@@ -170,7 +214,9 @@ export default function Signup() {
         ) : (
           // Avatar Picker
           <div>
-            <h2 className="text-2xl font-bold text-orange-600 text-center mb-4">Choose Your Avatar</h2>
+            <h2 className="text-2xl font-bold text-orange-600 text-center mb-4">
+              Choose Your Avatar
+            </h2>
             <div className="grid grid-cols-3 gap-4">
               {avatars.map((url, index) => (
                 <img

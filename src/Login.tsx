@@ -1,24 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./lib/AuthContext";
+import { useAuth } from "./lib/AuthContext"; // your custom AuthContext
 
 export default function Login() {
   const { login } = useAuth();
-  const navigate = useNavigate(); // ✅ for redirection
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showExtraOptions, setShowExtraOptions] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = login(username, password);
+
+    const success = await login(username, password);
     if (!success) {
       setError("Invalid credentials. Try again.");
       setShowExtraOptions(true);
     } else {
       setError("");
-      navigate("/"); // ✅ Redirect to home page
+      navigate("/"); // redirect to home on success
     }
   };
 
