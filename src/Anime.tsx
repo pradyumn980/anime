@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X, Filter, Clock, Star, Play, Calendar, Users, Loader2, ExternalLink } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Ensure Link is imported
+
 import {
   Card,
   CardContent,
@@ -47,15 +48,15 @@ type FormValue = {
 function AnimeCard({ anime, onViewDetails }: { anime: Anime; onViewDetails: (anime: Anime) => void }) {
   
   return (
-    <div className="group relative bg-gradient-to-br from-slate-800/50 via-slate-800/80 to-slate-900 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden text-white border border-slate-700/50 hover:border-violet-500/50 transition-all duration-500 hover:shadow-violet-500/20 hover:shadow-2xl hover:scale-[1.02] transform-gpu">
+    <div className="group relative overflow-hidden rounded-xl border border-gray-800 transition-all duration-300 hover:border-red-500/50 hover:scale-[1.02] bg-[#0e0e0e] text-white hover:shadow-2xl hover:shadow-red-500/20">
       {/* Animated Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+      {/* <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div> */}
       
       {/* Image Container */}
       <div className="relative overflow-hidden">
         <img
           alt={anime.title}
-          className="w-full h-72 object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+          className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-110"
           src={anime.images.webp.large_image_url || anime.images.webp.image_url}
           loading="lazy"
           onError={(e) => {
@@ -69,9 +70,9 @@ function AnimeCard({ anime, onViewDetails }: { anime: Anime; onViewDetails: (ani
         
         {/* Floating Info Tags */}
         <div className="absolute top-4 right-4 flex gap-2">
-          <span className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 backdrop-blur-md text-xs font-bold rounded-full shadow-lg border border-red-400/30 transform transition-all duration-300 group-hover:scale-110">
+          {/* <span className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 backdrop-blur-md text-xs font-bold rounded-full shadow-lg border border-red-400/30 transform transition-all duration-300 group-hover:scale-110">
             {anime.type}
-          </span>
+          </span> */}
           {anime.score && (
             <span className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black backdrop-blur-md text-xs font-bold rounded-full flex items-center gap-1 shadow-lg border border-amber-400/30 transform transition-all duration-300 group-hover:scale-110">
               <Star size={12} className="text-black" />
@@ -80,28 +81,29 @@ function AnimeCard({ anime, onViewDetails }: { anime: Anime; onViewDetails: (ani
           )}
         </div>
 
-        {/* Animated View Details Button */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform scale-50 group-hover:scale-100">
-          <button 
-            onClick={() => onViewDetails(anime)}
-            className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 backdrop-blur-md rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-2xl border-2 border-white/20 hover:shadow-red-500/50"
-          >
-            <ExternalLink size={24} className="text-white" />
-          </button>
-        </div>
-
+        {/* Watch Button - Similar to Home.tsx */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 z-20">
+                          <Link
+                            to={`/anime/${anime.mal_id}`}
+                            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold transition-colors duration-300 flex items-center gap-2 text-sm"
+                          >
+                            <Play className="w-4 h-4" />
+                            Watch
+                          </Link>
+                        </div>
+        
         {/* Glowing Effect */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700">
+        {/* <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700">
           <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 via-purple-500/20 to-pink-500/20 animate-pulse"></div>
-        </div>
+        </div> */}
       </div>
 
       {/* Content */}
       <div className="relative p-6 space-y-4">
         {/* Title with Glow Effect */}
-        <h3 className="text-xl font-bold bg-gradient-to-r from-white via-violet-200 to-white bg-clip-text text-transparent group-hover:from-violet-300 group-hover:via-pink-300 group-hover:to-violet-300 transition-all duration-500">
-          {anime.title}
-        </h3>
+        <Link to={`/anime/${anime.mal_id}`} className="text-lg font-semibold line-clamp-2 text-white group-hover:text-red-400 transition-colors duration-300 hover:underline">
+                    {anime.title}
+                  </Link>
         
         {/* Meta Info */}
         <div className="flex items-center gap-3 text-sm text-slate-300 flex-wrap">
@@ -155,7 +157,7 @@ function AnimeCard({ anime, onViewDetails }: { anime: Anime; onViewDetails: (ani
       </div>
 
       {/* Bottom Glow Effect */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      {/* <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div> */}
     </div>
   );
 }
@@ -200,7 +202,7 @@ function AnimeList({ animeList, loading, onViewDetails }: {
           Found {animeList.length} result{animeList.length !== 1 ? 's' : ''}
         </h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {animeList.map((anime) => (
           <AnimeCard key={anime.mal_id} anime={anime} onViewDetails={onViewDetails} />
         ))}
@@ -218,7 +220,18 @@ export default function Anime() {
     status: "",
   });
 
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]
+    // Initialize from localStorage if available
+    // () => {
+    //   try {
+    //     const storedHistory = localStorage.getItem('animeSearchHistory');
+    //     return storedHistory ? JSON.parse(storedHistory) : [];
+    //   } catch (error) {
+    //     console.error("Failed to parse search history from localStorage", error);
+    //     return [];
+    //   }
+    // }
+  );
   const [animeList, setAnimeList] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -285,17 +298,23 @@ export default function Anime() {
   const updateSearchHistory = (term: string) => {
     const newHistory = [term, ...searchHistory.filter((item) => item !== term)].slice(0, 5);
     setSearchHistory(newHistory);
+    // Optional: Persist to localStorage
+    // localStorage.setItem('animeSearchHistory', JSON.stringify(newHistory));
   };
 
   const handleHistoryClick = (term: string) => {
     setSearchParams((prev) => ({ ...prev, search: term }));
+    searchAnime(); // Automatically trigger search when history item is clicked
   };
 
   const clearHistory = () => {
     setSearchHistory([]);
+    // Optional: Clear from localStorage
+    // localStorage.removeItem('animeSearchHistory');
   };
 
-  // Updated to navigate to AnimeDetails page
+  // This function is still useful if you have other ways to view details,
+  // but for the Play button, we'll use Link directly.
   const handleViewDetails = (anime: Anime) => {
     navigate(`/anime/${anime.mal_id}`);
   };
@@ -303,6 +322,7 @@ export default function Anime() {
   const handleBackToSearch = () => {
     setAnimeList([]);
     setHasSearched(false);
+    setSearchParams(prev => ({ ...prev, search: "", type: "", status: "" })); // Clear search input
   };
 
   return(
@@ -444,31 +464,13 @@ export default function Anime() {
 
         
         {/* Anime Results */}
-         {/* When displaying search results */}
-         <CardHeader className="p-4">
-          {hasSearched && (
-        <div className="anime-grid">
-          {animeList.map((anime) => (
-            <Card key={anime.mal_id} className="anime-card">
-              
-  <img src={anime.images?.webp?.image_url} alt={anime.title} />
-  <h3>{anime.title}</h3>
-  <p>Score: {anime.score}</p>
-  
-  {/* This Link will navigate to animeDetails.tsx */}
-  <Link
-    to={`/anime/${anime.mal_id}`}
-    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-semibold transition-colors duration-300 flex items-center gap-2 text-sm"
-  >
-    <Play className="w-4 h-4" />
-    Watch
-  </Link>
-
-            </Card>
-          ))}
-        </div>
-      )}
-         </CardHeader>
+        {hasSearched && (
+          <AnimeList 
+            animeList={animeList} 
+            loading={loading} 
+            onViewDetails={handleViewDetails} 
+          />
+        )}
       
     </div>
       

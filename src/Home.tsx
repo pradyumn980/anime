@@ -263,7 +263,27 @@ export function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-orange-100 rounded-lg p-4 text-center">
+            <h2 className="text-lg font-semibold text-orange-700 mb-2">Featured Anime</h2>
+            <p className="text-gray-700 text-sm">Discover the latest and most popular anime series.</p>
+          </div>
+          <div className="bg-blue-100 rounded-lg p-4 text-center">
+            <h2 className="text-lg font-semibold text-blue-700 mb-2">Your Recommendations</h2>
+            <p className="text-gray-700 text-sm">Personalized suggestions based on your preferences.</p>
+          </div>
+          {/* Add two more cards for demonstration or leave empty for now */}
+          <div className="bg-green-100 rounded-lg p-4 text-center">
+            <h2 className="text-lg font-semibold text-green-700 mb-2">Community</h2>
+            <p className="text-gray-700 text-sm">Join discussions with fellow anime fans.</p>
+          </div>
+          <div className="bg-purple-100 rounded-lg p-4 text-center">
+            <h2 className="text-lg font-semibold text-purple-700 mb-2">Events</h2>
+            <p className="text-gray-700 text-sm">See upcoming anime events and news.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {allAnime.map((anime, index) => (
             <Card
               key={anime.mal_id}
