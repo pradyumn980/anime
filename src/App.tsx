@@ -8,6 +8,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import { AnimeDetails } from "./AnimeDetails";
 import { Profile } from "./Profile";
 import { useEffect, useState } from "react";
+import Community from "./Community";
+import Contact from "./components/Contact";
 
 export function App() {
   const { isAuthenticated, user } = useAuth();
@@ -43,6 +45,15 @@ export function App() {
             >
               🔍 Search
             </Link>
+            
+            <Link 
+              to="/community" 
+              className={`text-white/90 hover:text-white font-medium transition-all duration-200 hover:scale-105 px-4 py-2 rounded-lg hover:bg-red-700/20 backdrop-blur-sm border border-transparent hover:border-red-700/50 ${
+                location.pathname === "/community" ? "bg-red-700/30 text-white border-red-700/50" : ""
+              }`}
+            >
+              👥 Community
+            </Link>
 
             {isAuthenticated && (
               <div className="relative group">
@@ -72,8 +83,15 @@ export function App() {
           <Route path="/anime/:id" element={<ProtectedRoute><AnimeDetails /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/community" element={<Community />} />
         </Routes>
       </main>
+      {!hideHeader && (
+        <footer className="bg-black/80 border-t border-red-700/30 py-8 mt-8">
+          <Contact />
+          <div className="text-center text-gray-500 text-xs mt-4">&copy; {new Date().getFullYear()} AnimeFinder. All rights reserved.</div>
+        </footer>
+      )}
     </div>
   );
 }
