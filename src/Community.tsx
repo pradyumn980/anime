@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function Community() {
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] py-12 px-4">
       <div className="max-w-6xl mx-auto">

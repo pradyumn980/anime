@@ -21,6 +21,7 @@ import {
 } from "./components/ui/card";
 
 export function Home() {
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const {
     data,
     fetchNextPage,

@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { Play } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "Unknown";
@@ -132,7 +133,7 @@ export function AnimeDetails() {
         </button>
 
         {/* Hero Section with Enhanced Design */}
-        <div className="flex flex-col lg:flex-row gap-8 mb-16">
+        <div className="flex flex-col lg:flex-row gap-4 mb-8">
           {/* Enhanced Poster */}
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-rbg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] text-white min-h-screen rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
@@ -150,13 +151,13 @@ export function AnimeDetails() {
           </div>
 
           {/* Enhanced Info Section */}
-          <div className="flex-1 flex flex-col justify-center space-y-6">
-            <div className="space-y-4">
-              <h1 className="text-5xl xl:text-6xl font-black bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent leading-tight">
+          <div className="flex-1 flex flex-col justify-center space-y-3">
+            <div className="space-y-2">
+              <h1 className="text-3xl xl:text-4xl font-black bg-gradient-to-r from-white via-purple-200 to-purple-400 bg-clip-text text-transparent leading-tight">
                 {anime.title}
               </h1>
               {anime.title_english && anime.title_english !== anime.title && (
-                <p className="text-xl text-purple-300 font-medium opacity-90">
+                <p className="text-lg text-purple-300 font-medium opacity-90">
                   {anime.title_english}
                 </p>
               )}
@@ -197,12 +198,12 @@ export function AnimeDetails() {
         </div>
 
         {/* Enhanced Details Section */}
-        <section className="mb-16 bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
-          <h2 className="text-4xl font-black mb-8 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent text-center">
+        <section className="mb-8 bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 rounded-2xl p-4 shadow-xl">
+          <h2 className="text-2xl font-black mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent text-center">
             Anime Details
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { label: "Episodes", value: anime.episodes ?? "?", icon: "📺" },
               { label: "Status", value: anime.status ?? "Unknown", icon: "📊" },
@@ -369,6 +370,178 @@ export function AnimeDetails() {
               </button>
             </div>
           </div>
+        )}
+        {/* Reviews Section (moved to end) */}
+        <section className="mb-8 bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 rounded-2xl p-4 shadow-xl">
+          <h2 className="text-2xl font-black mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent text-center">
+            📝 Reviews
+          </h2>
+          <Reviews animeId={anime.mal_id} />
+        </section>
+      </div>
+    </div>
+  );
+}
+
+type Review = {
+  username: string;
+  text: string;
+  date: string;
+  rating?: number;
+};
+
+function Reviews({ animeId }: { animeId: number }) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [username, setUsername] = useState("");
+  const [text, setText] = useState("");
+  const [rating, setRating] = useState(0);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  // Load reviews from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`reviews_${animeId}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setReviews(parsed);
+        } else {
+          setReviews([]);
+        }
+      } else {
+        setReviews([]);
+      }
+    } catch {
+      setReviews([]);
+    }
+  }, [animeId]);
+
+  // Save reviews to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(`reviews_${animeId}`, JSON.stringify(reviews));
+    } catch {}
+  }, [reviews, animeId]);
+
+  // Calculate average rating
+  const avgRating = reviews.length ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1) : null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username.trim() || !text.trim() || rating === 0) {
+      setError("Please enter your name, review, and rating.");
+      setSuccess(false);
+      return;
+    }
+    setError("");
+    setSuccess(true);
+    const newReview = {
+      username: username.trim(),
+      text: text.trim(),
+      date: new Date().toLocaleString(),
+      rating,
+    };
+    setReviews([newReview, ...reviews]);
+    setUsername("");
+    setText("");
+    setRating(0);
+    setTimeout(() => setSuccess(false), 2000);
+  };
+
+  const handleDelete = (idx: number) => {
+    setReviews(reviews.filter((_, i) => i !== idx));
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 rounded-xl p-4 shadow border border-slate-700/60 max-w-2xl mx-auto">
+      {avgRating && (
+        <div className="flex items-center gap-2 mb-2 justify-center">
+          <span className="text-yellow-400 font-bold text-lg">{avgRating}</span>
+          <Star className="text-yellow-400 w-5 h-5" fill="#facc15" />
+          <span className="text-slate-400 text-sm">({reviews.length} review{reviews.length > 1 ? 's' : ''})</span>
+        </div>
+      )}
+      <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2 items-center">
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
+          <input
+            type="text"
+            className="flex-1 p-2 rounded border border-slate-600 bg-slate-900 text-white text-sm"
+            placeholder="Your name"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            maxLength={20}
+          />
+          <button
+            type="submit"
+            className="bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold py-1 px-4 rounded shadow hover:from-pink-600 hover:to-orange-600 text-sm"
+          >
+            Submit
+          </button>
+        </div>
+        <textarea
+          className="w-full p-2 rounded border border-slate-600 bg-slate-900 text-white text-sm"
+          placeholder="Write your review..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+          rows={3}
+          maxLength={400}
+        />
+        {/* Star rating input */}
+        <div className="flex gap-1 items-center justify-center my-1">
+          {[1,2,3,4,5].map((star) => (
+            <button
+              type="button"
+              key={star}
+              onClick={() => setRating(star)}
+              className="focus:outline-none"
+            >
+              <Star className={star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-500'} />
+            </button>
+          ))}
+          <span className="ml-2 text-slate-400 text-xs">{rating ? `${rating} / 5` : 'Rate'}</span>
+        </div>
+        {error && <div className="text-red-400 text-xs w-full text-left">{error}</div>}
+        {success && <div className="text-emerald-400 text-xs w-full text-left">Review submitted!</div>}
+      </form>
+      <hr className="my-4 border-slate-700/50" />
+      <div className="space-y-4">
+        {reviews.length === 0 ? (
+          <div className="flex flex-col items-center text-slate-400 text-center">
+            <Star className="w-10 h-10 mb-2 text-slate-700" />
+            No reviews yet. Be the first to review!
+          </div>
+        ) : (
+          reviews.map((review, idx) => (
+            <div key={idx} className="relative flex gap-3 items-start bg-slate-800/90 border border-slate-700 rounded-lg p-3 shadow hover:shadow-lg transition-all group">
+              {/* Avatar */}
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold text-base shadow-md">
+                {review.username.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="font-bold text-orange-400 text-sm">{review.username}</span>
+                  <span className="text-xs text-slate-400">{review.date}</span>
+                  <span className="flex items-center gap-1 ml-2">
+                    {[1,2,3,4,5].map((star) => (
+                      <Star key={star} className={`w-3 h-3 ${star <= (review.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-500'}`} />
+                    ))}
+                  </span>
+                </div>
+                <div className="text-white whitespace-pre-line text-sm">{review.text}</div>
+              </div>
+              {/* Delete button for your own review (by name) */}
+              {review.username === username && (
+                <button
+                  onClick={() => handleDelete(idx)}
+                  className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 bg-slate-900/80 rounded px-2 py-0.5 shadow"
+                  title="Delete your review"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          ))
         )}
       </div>
     </div>

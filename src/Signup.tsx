@@ -4,11 +4,17 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 const avatars = [
-  "/avatars/avatar1.jpg", // fixed folder name
+
+  "/avatars/avatar1.jpg", 
   "/avatars/avatar2.jpg",
   "/avatars/avatar3.jpg",
   "/avatars/avatar4.jpg",
   "/avatars/avatar5.jpg",
+  "/avatars/avatar6.jpeg", 
+  "/avatars/avatar7.jpeg",
+  "/avatars/avatar8.jpeg",
+  "/avatars/avatar9.jpeg",
+  "/avatars/avatar10.jpeg",
 ];
 
 export default function Signup() {
@@ -29,6 +35,10 @@ export default function Signup() {
   // Controls UI between signup form and avatar picker
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null);
+  // Remove selectedAvatar and custom avatar logic
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -38,40 +48,51 @@ export default function Signup() {
 
   const [registeredUser, setRegisteredUser] = useState<string | null>(null);
 
+  // Add a setUser state updater for context
+  const [_, setForceUser] = useState<any>(null); // force update
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Normalize username and email
+    const normalizedUsername = formData.username.trim().toLowerCase();
+    const normalizedEmail = formData.email.trim().toLowerCase();
+
     try {
-      const success = await register(formData.username, formData.password, {
-        email: formData.email,
+      const success = await register(normalizedUsername, formData.password, {
+        email: normalizedEmail,
         securityQuestion: formData.securityQuestion,
         securityAnswer: formData.securityAnswer,
       });
 
       if (success) {
-        setRegisteredUser(formData.username);
+        setRegisteredUser(normalizedUsername);
         setSuccessMessage("Account created! Please choose your avatar.");
         setError("");
         setShowAvatarPicker(true);
       } else {
-        setError("Username already exists.");
+        setError("Username or email already exists.");
         setSuccessMessage("");
       }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+    } catch (err: any) {
+      // Try to show more specific error if available
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
       setSuccessMessage("");
     }
   };
 
-  const handleSelectAvatar = async (url: string) => {
-    if (!registeredUser) return;
-
+  // Restore handleAvatarSignup for button
+  const handleAvatarSignup = async () => {
+    if (!registeredUser || !selectedAvatar) return;
     try {
-      // Save avatar to backend
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:8000/api/set-avatar",
         {
-          avatar: url,
+          avatar: selectedAvatar,
         },
         {
           headers: {
@@ -79,11 +100,24 @@ export default function Signup() {
           },
         }
       );
-
-      if (res.data.user._id) {
-       navigate("/");
+      setAvatar(selectedAvatar);
+      // Fetch latest user data and update context
+      try {
+        const res = await axios.get("/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        if (res.data.user) {
+          localStorage.setItem("currentUser", JSON.stringify(res.data.user));
+          setForceUser(res.data.user); // force rerender if needed
+        }
+      } catch (err) {
+        // ignore fetch error, fallback to setAvatar
       }
+      navigate("/");
     } catch (err) {
+      setError("Failed to save avatar. Please try again.");
       console.error("Failed to save avatar:", err);
     }
   };
@@ -93,141 +127,116 @@ export default function Signup() {
       className="w-screen h-screen bg-no-repeat bg-cover bg-center flex items-center justify-center"
       style={{ backgroundImage: "url('/bgSignup.jpg')" }}
     >
-      <div className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md">
+      <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-xl w-full max-w-sm max-h-[1000vh] overflow-auto">
         {!showAvatarPicker ? (
           // Signup Form
           <form onSubmit={handleSubmit}>
-            <h2 className="text-3xl font-bold mb-6 text-orange-600 text-center anime-font">
+            <h2 className="text-2xl font-bold mb-6 text-orange-600 text-center anime-font">
               Signup for AnimeFinder
             </h2>
-
-            {error && <p className="text-red-600 mb-4">{error}</p>}
+            {error && <p className="text-red-600 mb-3">{error}</p>}
             {successMessage && (
-              <p className="text-green-600 mb-4">{successMessage}</p>
+              <p className="text-green-600 mb-3">{successMessage}</p>
             )}
-
             {/* Username */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700">Username</label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
+                className="mt-1 block w-full border rounded-md p-1 text-sm"
                 required
               />
             </div>
-
             {/* Password */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700">Password</label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
+                className="mt-1 block w-full border rounded-md p-1 text-sm"
                 required
               />
             </div>
-
             {/* Email */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-2"
+                className="mt-1 block w-full border rounded-md p-1 text-sm"
                 required
               />
             </div>
-
             {/* Security Question */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Security Question
-              </label>
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700">Security Question</label>
               <select
                 name="securityQuestion"
                 required
-                className="mt-1 block w-full border rounded-md p-2"
+                className="mt-1 block w-full border rounded-md p-1 text-sm"
                 value={formData.securityQuestion}
                 onChange={handleChange}
               >
                 <option value="">Select a question</option>
                 <option value="pet">What was your first pet's name?</option>
-                <option value="school">
-                  What school did you attend as a child?
-                </option>
+                <option value="school">What school did you attend as a child?</option>
                 <option value="city">In what city were you born?</option>
               </select>
             </div>
-
             {/* Security Answer */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700">
-                Answer
-              </label>
+              <label className="block text-xs font-medium text-gray-700">Answer</label>
               <input
                 type="text"
                 name="securityAnswer"
                 required
-                className="mt-1 block w-full border rounded-md p-2"
+                className="mt-1 block w-full border rounded-md p-1 text-sm"
                 value={formData.securityAnswer}
                 onChange={handleChange}
               />
             </div>
-
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded"
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded text-sm mb-2"
             >
-              Signup
+              Sign Up
             </button>
-
-            {/* Login and Reset Password Links */}
-            <p className="mt-4 text-sm text-center text-gray-700">
-              Already have an account?{" "}
-              <Link to="/login" className="text-orange-600 hover:underline">
-                Login
-              </Link>
-            </p>
-            <p className="mt-2 text-sm text-center">
-              <Link
-                to="/reset-password"
-                className="text-blue-600 hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </p>
           </form>
         ) : (
           // Avatar Picker
           <div>
-            <h2 className="text-2xl font-bold text-orange-600 text-center mb-4">
-              Choose Your Avatar
-            </h2>
-            <div className="grid grid-cols-3 gap-4">
-              {avatars.map((url, index) => (
-                <img
-                  key={index}
-                  src={url}
-                  alt="avatar"
-                  className="w-24 h-24 object-cover rounded-full cursor-pointer border-2 hover:border-orange-500"
-                  onClick={() => handleSelectAvatar(url)}
-                />
+            <h2 className="text-xl font-bold mb-4 text-orange-600 text-center">Choose Your Avatar</h2>
+            <div className="flex flex-wrap gap-3 justify-center mb-6">
+              {avatars.map((url, idx) => (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => setSelectedAvatar(url)}
+                  className={`focus:outline-none border-2 rounded-full p-1 transition-all w-20 h-20 flex items-center justify-center ${selectedAvatar === url ? 'border-orange-500' : 'border-transparent'} hover:border-orange-500`}
+                >
+                  <img
+                    src={url}
+                    alt={`Avatar ${idx + 1}`}
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
+                </button>
               ))}
             </div>
+            <button
+              onClick={handleAvatarSignup}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded text-sm mt-2 disabled:opacity-60"
+              disabled={!selectedAvatar}
+            >
+              Sign Up
+            </button>
           </div>
         )}
       </div>

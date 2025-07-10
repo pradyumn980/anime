@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Update user avatar in context and localStorage
     const updatedUser = { ...user, avatar: url };
     setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
   };
 
   return (

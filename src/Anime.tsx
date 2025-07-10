@@ -48,7 +48,7 @@ type FormValue = {
 function AnimeCard({ anime, onViewDetails }: { anime: Anime; onViewDetails: (anime: Anime) => void }) {
   
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-gray-800 transition-all duration-300 hover:border-red-500/50 hover:scale-[1.02] bg-[#0e0e0e] text-white hover:shadow-2xl hover:shadow-red-500/20">
+    <div className="group relative overflow-hidden rounded-lg border border-gray-800 transition-all duration-300 hover:border-red-500/50 hover:scale-[1.01] bg-[#0e0e0e] text-white hover:shadow-xl hover:shadow-red-500/20">
       {/* Animated Background Gradient */}
       {/* <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div> */}
       
@@ -99,9 +99,9 @@ function AnimeCard({ anime, onViewDetails }: { anime: Anime; onViewDetails: (ani
       </div>
 
       {/* Content */}
-      <div className="relative p-6 space-y-4">
+      <div className="relative p-3 space-y-2">
         {/* Title with Glow Effect */}
-        <Link to={`/anime/${anime.mal_id}`} className="text-lg font-semibold line-clamp-2 text-white group-hover:text-red-400 transition-colors duration-300 hover:underline">
+        <Link to={`/anime/${anime.mal_id}`} className="text-base font-semibold line-clamp-2 text-white group-hover:text-red-400 transition-colors duration-300 hover:underline">
                     {anime.title}
                   </Link>
         
@@ -195,14 +195,14 @@ function AnimeList({ animeList, loading, onViewDetails }: {
   }
 
   return (
-    <div className="mt-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+    <div className="mt-4">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <span className="w-2 h-2 bg-violet-500 rounded-full animate-pulse"></span>
           Found {animeList.length} result{animeList.length !== 1 ? 's' : ''}
         </h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {animeList.map((anime) => (
           <AnimeCard key={anime.mal_id} anime={anime} onViewDetails={onViewDetails} />
         ))}
@@ -214,27 +214,48 @@ function AnimeList({ animeList, loading, onViewDetails }: {
 export default function Anime() {
   const navigate = useNavigate();
   
-  const [searchParams, setSearchParams] = useState<FormValue>({
-    search: "",
-    type: "",
-    status: "",
+  // Restore search params and results from localStorage if available
+  const [searchParams, setSearchParams] = useState<FormValue>(() => {
+    try {
+      const stored = localStorage.getItem('animeSearchParams');
+      return stored ? JSON.parse(stored) : { search: "", type: "", status: "" };
+    } catch {
+      return { search: "", type: "", status: "" };
+    }
   });
-
-  const [searchHistory, setSearchHistory] = useState<string[]>([]
-    // Initialize from localStorage if available
-    // () => {
-    //   try {
-    //     const storedHistory = localStorage.getItem('animeSearchHistory');
-    //     return storedHistory ? JSON.parse(storedHistory) : [];
-    //   } catch (error) {
-    //     console.error("Failed to parse search history from localStorage", error);
-    //     return [];
-    //   }
-    // }
-  );
-  const [animeList, setAnimeList] = useState<Anime[]>([]);
+  const [animeList, setAnimeList] = useState<Anime[]>(() => {
+    try {
+      const stored = localStorage.getItem('animeSearchResults');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [hasSearched, setHasSearched] = useState(() => {
+    try {
+      const stored = localStorage.getItem('animeSearchResults');
+      return stored && JSON.parse(stored).length > 0;
+    } catch {
+      return false;
+    }
+  });
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+
+  // Scroll to top when search results are shown
+  useEffect(() => {
+    if (hasSearched) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [hasSearched]);
+
+  // Persist search params and results to localStorage
+  useEffect(() => {
+    if (hasSearched) {
+      localStorage.setItem('animeSearchParams', JSON.stringify(searchParams));
+      localStorage.setItem('animeSearchResults', JSON.stringify(animeList));
+    }
+  }, [animeList, searchParams, hasSearched]);
 
   const searchAnime = async () => {
     const search = searchParams.search.trim();
@@ -287,9 +308,13 @@ export default function Anime() {
       }));
 
       setAnimeList(transformedData);
+      // Persist results and params
+      localStorage.setItem('animeSearchParams', JSON.stringify(searchParams));
+      localStorage.setItem('animeSearchResults', JSON.stringify(transformedData));
     } catch (error) {
       console.error('Error fetching anime:', error);
       setAnimeList([]);
+      localStorage.setItem('animeSearchResults', JSON.stringify([]));
     } finally {
       setLoading(false);
     }
@@ -323,6 +348,9 @@ export default function Anime() {
     setAnimeList([]);
     setHasSearched(false);
     setSearchParams(prev => ({ ...prev, search: "", type: "", status: "" })); // Clear search input
+    // Clear persisted search
+    localStorage.removeItem('animeSearchParams');
+    localStorage.removeItem('animeSearchResults');
   };
 
   return(
@@ -337,11 +365,14 @@ export default function Anime() {
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         {/* Header with Gradient Text */}
         <div className="text-center mb-12">
-          <h1 className="text-6xl font-black bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4 drop-shadow-2xl">
+          {/* Reduce header size */}
+          <h1 className="text-4xl font-black bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2 drop-shadow-2xl">
             ANIME SEARCH
           </h1>
-          <p className="text-slate-300 text-xl font-light">Discover your next adventure</p>
-          <div className="w-24 h-1 bg-gradient-to-r from-violet-500 to-purple-500 mx-auto mt-4 rounded-full"></div>
+          {/* Reduce header size */}
+          <p className="text-slate-300 text-base font-light">Discover your next adventure</p>
+          {/* Reduce header size */}
+          <div className="w-16 h-1 bg-gradient-to-r from-violet-500 to-purple-500 mx-auto mt-2 rounded-full"></div>
         </div>
 
         {/* Show back button on results page */}
@@ -356,58 +387,45 @@ export default function Anime() {
         )}
 
         {/* Enhanced Search Form */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50 shadow-2xl mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-end gap-6">
+        {/* Reduce padding and margin in search form */}
+        <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl p-4 border border-slate-700/50 shadow-xl mb-4">
+          <div className="flex flex-col lg:flex-row lg:items-end gap-3">
             {/* Search Input */}
-            <div className="flex-1 relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
-              <input
-                type="text"
-                placeholder="Search for anime..."
-                className="relative w-full bg-slate-700/50 border-2 border-slate-600/50 text-white placeholder-slate-400 px-6 py-4 rounded-2xl focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all duration-300 text-lg backdrop-blur-sm"
-                value={searchParams.search}
-                onChange={(e) => setSearchParams(prev => ({ ...prev, search: e.target.value }))}
-                onKeyPress={(e) => e.key === 'Enter' && searchAnime()}
-              />
-              <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none" size={20} />
-            </div>
-
+            <input
+              type="text"
+              placeholder="Search for anime..."
+              className="flex-grow h-10 bg-slate-700/50 border-2 border-slate-600/50 text-white placeholder-slate-400 px-4 rounded-xl focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all duration-300 text-base backdrop-blur-sm min-w-0"
+              value={searchParams.search}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, search: e.target.value }))}
+            />
             {/* Type Filter */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
-              <select
-                className="relative bg-slate-700/50 border-2 border-slate-600/50 text-white px-6 py-4 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 backdrop-blur-sm min-w-[140px]"
-                value={searchParams.type}
-                onChange={(e) => setSearchParams(prev => ({ ...prev, type: e.target.value }))}
-              >
-                <option value="">All Types</option>
-                <option value="tv">TV Series</option>
-                <option value="movie">Movies</option>
-                <option value="ova">OVA</option>
-                <option value="special">Specials</option>
-              </select>
-            </div>
-
+            <select
+              className="flex-shrink-0 h-10 bg-slate-700/50 border-2 border-slate-600/50 text-white px-4 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 backdrop-blur-sm min-w-[140px] text-base"
+              value={searchParams.type}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, type: e.target.value }))}
+            >
+              <option value="">All Types</option>
+              <option value="tv">TV Series</option>
+              <option value="movie">Movies</option>
+              <option value="ova">OVA</option>
+              <option value="special">Specials</option>
+            </select>
             {/* Status Filter */}
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
-              <select
-                className="relative bg-slate-700/50 border-2 border-slate-600/50 text-white px-6 py-4 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 transition-all duration-300 backdrop-blur-sm min-w-[140px]"
-                value={searchParams.status}
-                onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
-              >
-                <option value="">All Status</option>
-                <option value="airing">Currently Airing</option>
-                <option value="complete">Completed</option>
-                <option value="upcoming">Coming Soon</option>
-              </select>
-            </div>
-
+            <select
+              className="flex-shrink-0 h-10 bg-slate-700/50 border-2 border-slate-600/50 text-white px-4 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 backdrop-blur-sm min-w-[140px] text-base"
+              value={searchParams.status}
+              onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
+            >
+              <option value="">All Status</option>
+              <option value="airing">Currently Airing</option>
+              <option value="complete">Completed</option>
+              <option value="upcoming">Coming Soon</option>
+            </select>
             {/* Search Button */}
             <button
               onClick={searchAnime}
               disabled={loading}
-              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-8 py-4 rounded-2xl flex items-center gap-3 transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:scale-105 transform font-semibold text-lg disabled:scale-100 disabled:cursor-not-allowed"
+              className="flex-shrink-0 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-600 disabled:to-gray-700 text-white px-6 rounded-xl flex items-center gap-3 transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:scale-105 transform font-semibold text-base disabled:scale-100 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : <Search size={20} />}
               {loading ? 'Searching...' : 'Search'}

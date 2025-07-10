@@ -44,7 +44,7 @@ export default function Login() {
             className="mt-1 block w-full border rounded-md p-2"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="anime"
+            placeholder="Enter your username"
             required
           />
         </div>
@@ -56,7 +56,7 @@ export default function Login() {
             className="mt-1 block w-full border rounded-md p-2"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="pass"
+            placeholder="Enter your password"
             required
           />
         </div>
@@ -68,18 +68,20 @@ export default function Login() {
           Login
         </button>
 
+        <div className="mt-4 text-sm text-center">
+          <span>Don’t have an account?{' '}
+            <a href="/signup" className="text-blue-600 underline">
+              Sign up
+            </a>
+          </span>
+        </div>
+
         {showExtraOptions && (
           <div className="mt-4 text-sm text-center">
             <p>
               Forgot password?{" "}
               <a href="/reset" className="text-blue-600 underline">
                 Reset here
-              </a>
-            </p>
-            <p className="mt-2">
-              Don’t have an account?{" "}
-              <a href="/signup" className="text-blue-600 underline">
-                Sign up
               </a>
             </p>
           </div>

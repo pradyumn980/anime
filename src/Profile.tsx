@@ -1,15 +1,25 @@
 // src/Profile.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "./lib/AuthContext";
 import { Button } from "./components/ui/button";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+// Extend User type locally to include securityQuestion and securityAnswer
+type UserWithSecurity = {
+  username: string;
+  email: string;
+  avatar?: string;
+  securityQuestion?: string;
+  securityAnswer?: string;
+};
 
 export function Profile() {
-  const { isAuthenticated, logout } = useAuth();
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+  const { isAuthenticated, logout, user: baseUser, setAvatar } = useAuth();
+  const user = baseUser as UserWithSecurity | null;
   const navigate = useNavigate();
 
-  const storedUser = localStorage.getItem("currentUser");
-  const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
   const [isEditing, setIsEditing] = useState(false);
   const [showSecurityAnswer, setShowSecurityAnswer] = useState(false);
   const [editData, setEditData] = useState({
@@ -19,6 +29,7 @@ export function Profile() {
   });
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [newAvatarUrl, setNewAvatarUrl] = useState("");
+  const [avatarError, setAvatarError] = useState("");
 
   if (!isAuthenticated || !user) {
     return (
@@ -31,9 +42,7 @@ export function Profile() {
   }
 
   const handleSave = () => {
-    const updatedUser = { ...user, ...editData };
-    setUser(updatedUser);
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+    // Optionally, send updated user info to backend here
     setIsEditing(false);
   };
 
@@ -46,14 +55,29 @@ export function Profile() {
     setIsEditing(false);
   };
 
-  const handleAvatarUpdate = () => {
+  const handleAvatarUpdate = async () => {
     if (newAvatarUrl.trim()) {
-      const updatedUser = { ...user, avatar: newAvatarUrl };
-      setUser(updatedUser);
-      setEditData({ ...editData, avatar: newAvatarUrl });
-      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
-      setNewAvatarUrl("");
-      setShowAvatarModal(false);
+      try {
+        // Persist avatar to backend
+        await axios.post(
+          "/api/auth/set-avatar",
+          { avatar: newAvatarUrl },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setAvatar(newAvatarUrl);
+        setEditData({ ...editData, avatar: newAvatarUrl });
+        setNewAvatarUrl("");
+        setShowAvatarModal(false);
+        setAvatarError("");
+      } catch (err: any) {
+        setAvatarError(
+          err.response?.data?.message || "Failed to update avatar. Please try again."
+        );
+      }
     }
   };
 
@@ -128,7 +152,7 @@ export function Profile() {
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 {/* Username */}
                 <div className="bg-[#0f1629] rounded-xl p-4 border border-gray-600/30">
                   <label className="block text-emerald-300 font-semibold mb-2">
@@ -139,11 +163,11 @@ export function Profile() {
                       type="text"
                       value={editData.username}
                       onChange={(e) => setEditData({ ...editData, username: e.target.value })}
-                      className="w-full bg-[#1f2937] text-white rounded-lg px-4 py-2 border border-gray-600 focus:border-orange-400 focus:outline-none transition-colors"
+                      className="w-full bg-[#1f2937] text-white rounded-lg px-4 py-2 border border-gray-600 focus:border-orange-400 focus:outline-none transition-colors break-all"
                       placeholder="Enter username"
                     />
                   ) : (
-                    <p className="text-white text-lg">{user.username}</p>
+                    <p className="text-white text-lg break-all">{user.username}</p>
                   )}
                 </div>
 
@@ -157,11 +181,11 @@ export function Profile() {
                       type="email"
                       value={editData.email}
                       onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                      className="w-full bg-[#1f2937] text-white rounded-lg px-4 py-2 border border-gray-600 focus:border-orange-400 focus:outline-none transition-colors"
+                      className="w-full bg-[#1f2937] text-white rounded-lg px-4 py-2 border border-gray-600 focus:border-orange-400 focus:outline-none transition-colors break-all"
                       placeholder="Enter email"
                     />
                   ) : (
-                    <p className="text-white text-lg">{user.email || "Not provided"}</p>
+                    <p className="text-white text-lg break-all">{user.email || "Not provided"}</p>
                   )}
                 </div>
               </div>
@@ -279,6 +303,10 @@ export function Profile() {
                 </div>
               )}
 
+              {avatarError && (
+                <p className="text-red-400 text-sm mt-2">{avatarError}</p>
+              )}
+
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={() => setShowAvatarModal(false)}
@@ -288,7 +316,7 @@ export function Profile() {
                 </Button>
                 <Button
                   onClick={handleAvatarUpdate}
-                  disabled={!newAvatarUrl.trim()}
+                  disabled={!newAvatarUrl.trim() || !!avatarError}
                   className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Save
