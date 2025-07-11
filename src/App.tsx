@@ -10,12 +10,13 @@ import { Profile } from "./Profile";
 import { useEffect, useState } from "react";
 import Community from "./Community";
 import Contact from "./components/Contact";
+import ResetPassword from "./ResetPassword";
 
 export function App() {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const hideHeader = location.pathname === "/login" || location.pathname === "/signup";
+  const hideHeader = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/reset";
 
   const avatar = user?.avatar;
 
@@ -84,6 +85,7 @@ export function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/reset" element={<ResetPassword />} />
         </Routes>
       </main>
       {!hideHeader && (

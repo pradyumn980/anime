@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import { Star } from 'lucide-react';
+import { showSuccessToast, showErrorToast } from "./lib/toast";
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "Unknown";

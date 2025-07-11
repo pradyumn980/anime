@@ -4,6 +4,7 @@ import { useAuth } from "./lib/AuthContext";
 import { Button } from "./components/ui/button";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { showSuccessToast, showErrorToast } from "./lib/toast";
 
 // Extend User type locally to include securityQuestion and securityAnswer
 type UserWithSecurity = {
@@ -41,8 +42,7 @@ export function Profile() {
     );
   }
 
-  const handleSave = () => {
-    // Optionally, send updated user info to backend here
+  const handleSave = async () => {
     setIsEditing(false);
   };
 
@@ -73,10 +73,12 @@ export function Profile() {
         setNewAvatarUrl("");
         setShowAvatarModal(false);
         setAvatarError("");
+        showSuccessToast("Avatar updated successfully!");
       } catch (err: any) {
         setAvatarError(
           err.response?.data?.message || "Failed to update avatar. Please try again."
         );
+        showErrorToast("Failed to update avatar. Please try again.");
       }
     }
   };
@@ -274,16 +276,41 @@ export function Profile() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#1f2937] rounded-2xl p-6 w-full max-w-md border border-gray-600">
             <h3 className="text-xl font-bold text-white mb-4">📷 Change Profile Picture</h3>
-            
             <div className="space-y-4">
+              {/* Avatar Selection Grid */}
               <div>
+                <label className="block text-emerald-300 font-semibold mb-2">
+                  🖼️ Choose an Avatar
+                </label>
+                <div className="grid grid-cols-5 gap-2 mb-2">
+                  {[1,2,3,4,5,6,7,8,9,10].map(num => {
+                    const ext = num <= 5 ? 'jpg' : 'jpeg';
+                    const url = `/avatars/avatar${num}.${ext}`;
+                    return (
+                      <img
+                        key={url}
+                        src={url}
+                        alt={`Avatar ${num}`}
+                        className={`w-12 h-12 rounded-full object-cover border-2 cursor-pointer transition-all duration-150 ${newAvatarUrl === url ? 'border-orange-400 ring-2 ring-orange-400' : 'border-gray-600 hover:border-orange-400'}`}
+                        onClick={() => {
+                          setNewAvatarUrl(url);
+                          setAvatarError("");
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <p className="text-gray-400 text-xs mb-2">Or paste a link below:</p>
                 <label className="block text-emerald-300 font-semibold mb-2">
                   🔗 Image URL
                 </label>
                 <input
                   type="url"
                   value={newAvatarUrl}
-                  onChange={(e) => setNewAvatarUrl(e.target.value)}
+                  onChange={(e) => {
+                    setNewAvatarUrl(e.target.value);
+                    setAvatarError("");
+                  }}
                   className="w-full bg-[#0f1629] text-white rounded-lg px-4 py-2 border border-gray-600 focus:border-orange-400 focus:outline-none transition-colors"
                   placeholder="https://example.com/avatar.jpg"
                 />

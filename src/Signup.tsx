@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "./lib/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { showSuccessToast, showErrorToast } from "./lib/toast";
 
 const avatars = [
 
@@ -70,16 +71,20 @@ export default function Signup() {
         setSuccessMessage("Account created! Please choose your avatar.");
         setError("");
         setShowAvatarPicker(true);
+        showSuccessToast("Account created! Please choose your avatar.");
       } else {
         setError("Username or email already exists.");
         setSuccessMessage("");
+        showErrorToast("Username or email already exists.");
       }
     } catch (err: any) {
       // Try to show more specific error if available
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
+        showErrorToast(err.response.data.message);
       } else {
         setError("Something went wrong. Please try again.");
+        showErrorToast("Something went wrong. Please try again.");
       }
       setSuccessMessage("");
     }
@@ -115,12 +120,17 @@ export default function Signup() {
       } catch (err) {
         // ignore fetch error, fallback to setAvatar
       }
+      showSuccessToast("Avatar set! Welcome to AnimeFinder.");
       navigate("/");
     } catch (err) {
       setError("Failed to save avatar. Please try again.");
       console.error("Failed to save avatar:", err);
+      showErrorToast("Failed to save avatar. Please try again.");
     }
   };
+
+  // Remove showPassword state
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div
@@ -153,14 +163,35 @@ export default function Signup() {
             {/* Password */}
             <div className="mb-3">
               <label className="block text-xs font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full border rounded-md p-1 text-sm"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="mt-1 block w-full border rounded-md p-1 text-sm pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-600 focus:outline-none"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    // Eye SVG (visible)
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M1.458 12C2.732 7.943 6.523 5 12 5c5.477 0 9.268 2.943 10.542 7-.7 2.157-2.243 4.018-4.542 5.292M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  ) : (
+                    // Eye with slash SVG (hidden)
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-5.477 0-9.268-2.943-10.542-7a10.056 10.056 0 012.908-4.568M6.634 6.634A9.956 9.956 0 0112 5c5.477 0 9.268 2.943 10.542 7a9.956 9.956 0 01-4.043 5.013M15 12a3 3 0 11-6 0 3 3 0 016 0zm-6 0a6 6 0 016 0m-9 9l18-18" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
             {/* Email */}
             <div className="mb-3">
@@ -209,6 +240,13 @@ export default function Signup() {
             >
               Sign Up
             </button>
+            <div className="mt-4 text-sm text-center">
+              <span>Already have an account?{' '}
+                <Link to="/login" className="text-blue-600 underline">
+                  Login
+                </Link>
+              </span>
+            </div>
           </form>
         ) : (
           // Avatar Picker
