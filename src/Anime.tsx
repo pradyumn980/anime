@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X, Filter, Clock, Star, Play, Calendar, Users, Loader2, ExternalLink } from "lucide-react";
+import Loader from "./components/ui/Loader";
 import { Link } from 'react-router-dom'; // Ensure Link is imported
 
 import {
@@ -170,8 +171,8 @@ function AnimeList({ animeList, loading, onViewDetails }: {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 ">
-        <Loader2 className="w-12 h-12 text-violet-500 animate-spin mb-4" />
-        <p className="text-slate-300 text-lg">Searching for anime...</p>
+        <Loader />
+        <p className="text-slate-300 text-lg mt-4">Searching for anime...</p>
       </div>
     );
   }

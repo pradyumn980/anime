@@ -120,3 +120,48 @@ export const setAvatar = async (req, res) => {
     res.status(500).json({ message: "Failed to update avatar" });
   }
 };
+
+// POST /api/auth/get-security-question
+export const getSecurityQuestion = async (req, res) => {
+  let { username } = req.body;
+  if (!username) {
+    return res.status(400).json({ message: "Username is required" });
+  }
+  username = username.trim().toLowerCase();
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (!user.securityQuestion) {
+      return res.status(404).json({ message: "No security question set for this user" });
+    }
+    res.json({ securityQuestion: user.securityQuestion });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// POST /api/auth/reset-password
+export const resetPassword = async (req, res) => {
+  let { username, securityAnswer, newPassword } = req.body;
+  if (!username || !securityAnswer || !newPassword) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  username = username.trim().toLowerCase();
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (!user.securityAnswer || user.securityAnswer.trim().toLowerCase() !== securityAnswer.trim().toLowerCase()) {
+      return res.status(401).json({ message: "Incorrect security answer" });
+    }
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
+    await user.save();
+    res.json({ message: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

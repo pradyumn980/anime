@@ -5,6 +5,8 @@ import {
   logoutUser,
   getCurrentUser,
   setAvatar,
+  getSecurityQuestion,
+  resetPassword,
 } from "../controllers/authController.js";
 import { isAuthenticated } from "../middleware/authMiddleware.js";
 
@@ -15,6 +17,8 @@ router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.get("/me", isAuthenticated, getCurrentUser);
 router.post("/set-avatar", isAuthenticated, setAvatar);
+router.post("/get-security-question", getSecurityQuestion);
+router.post("/reset-password", resetPassword);
  // optional: protect this too with isAuthenticated
 
 export default router;

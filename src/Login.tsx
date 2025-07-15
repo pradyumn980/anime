@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./lib/AuthContext"; // your custom AuthContext
 import { showSuccessToast, showErrorToast } from "./lib/toast";
+import Loader from "./components/ui/Loader";
 
 export default function Login() {
   const { login } = useAuth();
@@ -11,12 +12,14 @@ export default function Login() {
   const [error, setError] = useState("");
   const [showExtraOptions, setShowExtraOptions] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   // Remove showPassword state
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setLoading(true);
     const success = await login(username, password);
+    setLoading(false);
     if (!success) {
       setError("Invalid credentials. Try again.");
       setShowExtraOptions(true);
@@ -30,13 +33,18 @@ export default function Login() {
 
   return (
     <div
-      className="w-screen h-screen bg-no-repeat bg-cover bg-center flex items-center justify-center"
+      className="w-screen h-screen bg-no-repeat bg-cover bg-center flex items-center justify-center overflow-hidden"
       style={{ backgroundImage: "url('/background.jpg')" }}
     >
       <form
         onSubmit={handleSubmit}
-        className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md animate-fade-in"
+        className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md animate-fade-in relative"
       >
+        {loading && (
+          <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-20 rounded-xl">
+            <Loader />
+          </div>
+        )}
         <h2 className="text-4xl font-bold mb-6 text-orange-600 text-center anime-font">
           Login to AnimeFinder
         </h2>
@@ -89,9 +97,10 @@ export default function Login() {
 
         <button
           type="submit"
-          className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded"
+          className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center"
+          disabled={loading}
         >
-          Login
+          {loading ? <Loader /> : "Login"}
         </button>
 
         <div className="mt-4 text-sm text-center">

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import { Star } from 'lucide-react';
 import { showSuccessToast, showErrorToast } from "./lib/toast";
+import Loader from "./components/ui/Loader";
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "Unknown";
@@ -97,11 +98,8 @@ export function AnimeDetails() {
 
   if (isLoading)
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] text-white min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 mx-auto mb-4"></div>
-          <div className="text-white text-xl font-semibold">Loading anime details...</div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] text-white flex items-center justify-center">
+        <Loader />
       </div>
     );
 

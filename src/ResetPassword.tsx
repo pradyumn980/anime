@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { showSuccessToast, showErrorToast } from "./lib/toast";
+import Loader from "./components/ui/Loader";
 
 export default function ResetPassword() {
   const [username, setUsername] = useState("");
@@ -52,7 +53,12 @@ export default function ResetPassword() {
 
   return (
     <div className="w-screen h-screen bg-no-repeat bg-cover bg-center flex items-center justify-center overflow-hidden" style={{ backgroundImage: "url('/background.jpg')" }}>
-      <form className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md animate-fade-in" onSubmit={step === 1 ? handleUsernameSubmit : handleResetSubmit}>
+      <form className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md animate-fade-in relative" onSubmit={step === 1 ? handleUsernameSubmit : handleResetSubmit}>
+        {loading && (
+          <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-20 rounded-xl">
+            <Loader />
+          </div>
+        )}
         <h2 className="text-3xl font-bold mb-6 text-orange-600 text-center anime-font">Reset Password</h2>
         {error && <p className="text-red-600 mb-4">{error}</p>}
         {step === 1 && (
@@ -65,9 +71,10 @@ export default function ResetPassword() {
               onChange={e => setUsername(e.target.value)}
               placeholder="Enter your username"
               required
+              disabled={loading}
             />
-            <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded" disabled={loading}>
-              {loading ? "Loading..." : "Next"}
+            <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center" disabled={loading}>
+              {loading ? <Loader /> : "Next"}
             </button>
             <div className="mt-4 text-sm text-center">
               <span>Remembered your password?{' '}
@@ -90,6 +97,7 @@ export default function ResetPassword() {
               onChange={e => setSecurityAnswer(e.target.value)}
               placeholder="Enter your answer"
               required
+              disabled={loading}
             />
             <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
             <input
@@ -99,9 +107,10 @@ export default function ResetPassword() {
               onChange={e => setNewPassword(e.target.value)}
               placeholder="Enter new password"
               required
+              disabled={loading}
             />
-            <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded" disabled={loading}>
-              {loading ? "Resetting..." : "Reset Password"}
+            <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center" disabled={loading}>
+              {loading ? <Loader /> : "Reset Password"}
             </button>
             <div className="mt-4 text-sm text-center">
               <span>Remembered your password?{' '}

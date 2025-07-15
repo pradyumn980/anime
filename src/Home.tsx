@@ -11,6 +11,7 @@ const Link: React.FC<LinkProps> = ({ to, children, className, ...props }) => (
   <a href={to} className={className} {...props}>{children}</a>
 );
 import { Play, Star, Calendar, Clock, ChevronLeft, ChevronRight, Pause } from "lucide-react";
+import Loader from "./components/ui/Loader";
 
 import {
   Card,
@@ -110,10 +111,7 @@ export function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading amazing anime...</p>
-        </div>
+        <Loader />
       </div>
     );
   }
@@ -358,7 +356,7 @@ export function Home() {
         <div ref={observerRef} className="h-20 mt-12 flex items-center justify-center text-gray-400">
           {isFetchingNextPage && (
             <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-500"></div>
+              <Loader />
               <p>Loading more anime...</p>
             </div>
           )}
