@@ -100,7 +100,7 @@ export default function Login() {
           className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center"
           disabled={loading}
         >
-          {loading ? <Loader /> : "Login"}
+          Login
         </button>
 
         <div className="mt-4 text-sm text-center">

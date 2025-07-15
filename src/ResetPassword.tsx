@@ -52,7 +52,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="w-screen h-screen bg-no-repeat bg-cover bg-center flex items-center justify-center overflow-hidden" style={{ backgroundImage: "url('/background.jpg')" }}>
+    <div className="w-screen h-screen bg-no-repeat bg-cover bg-center flex items-center justify-center overflow-hidden" style={{ backgroundImage: "url('/bg-reset.jpg')" }}>
       <form className="bg-white/80 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md animate-fade-in relative" onSubmit={step === 1 ? handleUsernameSubmit : handleResetSubmit}>
         {loading && (
           <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-20 rounded-xl">
@@ -74,7 +74,7 @@ export default function ResetPassword() {
               disabled={loading}
             />
             <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center" disabled={loading}>
-              {loading ? <Loader /> : "Next"}
+              Next
             </button>
             <div className="mt-4 text-sm text-center">
               <span>Remembered your password?{' '}
@@ -110,7 +110,7 @@ export default function ResetPassword() {
               disabled={loading}
             />
             <button type="submit" className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center" disabled={loading}>
-              {loading ? <Loader /> : "Reset Password"}
+              Reset Password
             </button>
             <div className="mt-4 text-sm text-center">
               <span>Remembered your password?{' '}
