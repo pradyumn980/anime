@@ -7,32 +7,24 @@ import { useAuth } from "./lib/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 import { AnimeDetails } from "./AnimeDetails";
 import { Profile } from "./Profile";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Community from "./Community";
 import Contact from "./components/Contact";
 import ResetPassword from "./ResetPassword";
-import Loader from "./components/ui/Loader";
 import { useNavigationType } from "react-router-dom";
 
 export function App() {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [showLoader, setShowLoader] = useState(false);
   const navigationType = useNavigationType();
-
-  useEffect(() => {
-    setShowLoader(true);
-    const timeout = setTimeout(() => setShowLoader(false), 600); // minimum loader time
-    return () => clearTimeout(timeout);
-  }, [location]);
 
   const hideHeader = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/reset";
   const avatar = user?.avatar;
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937]">
-      {/* Remove global loader overlay */}
+      {/* Header */}
       {!hideHeader && (
         <header className="backdrop-blur-md bg-black/60 border-b border-red-700/30 shadow-2xl p-4 flex justify-between items-center sticky top-0 z-50">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg">
