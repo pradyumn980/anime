@@ -11,7 +11,7 @@ connectDB();
 console.log("Mongo URI:", process.env.MONGODB_URI);
 const app = express();
 
-app.use(cors({ origin: "http://localhost:9000", credentials: true }));
+app.use(cors({ origin: "https://animefinder247.vercel.app", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
