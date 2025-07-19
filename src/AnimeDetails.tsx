@@ -1,10 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
-import { Play } from 'lucide-react';
 import { Star } from 'lucide-react';
-import { showSuccessToast, showErrorToast } from "./lib/toast";
 import Loader from "./components/ui/Loader";
 
 function formatDate(dateStr: string | null): string {
