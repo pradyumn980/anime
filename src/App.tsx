@@ -7,9 +7,9 @@ import { useAuth } from "./lib/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
 import { AnimeDetails } from "./AnimeDetails";
 import { Profile } from "./Profile";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Community from "./Community";
-import Contact from "./components/Contact";
+import Footer from "./components/Footer";
 import ResetPassword from "./ResetPassword";
 import { useNavigationType } from "react-router-dom";
 
@@ -19,17 +19,42 @@ export function App() {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const hideHeader = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/reset";
   const avatar = user?.avatar;
+
+  // Determine if back button should be shown
+  const hideBackButton = ["/", "/login", "/signup", "/reset"].includes(location.pathname);
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937]">
       {/* Header */}
       {!hideHeader && (
         <header className="backdrop-blur-md bg-black/60 border-b border-red-700/30 shadow-2xl p-4 flex justify-between items-center sticky top-0 z-50">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg">
-            AnimeFinder
-          </h1>
+          <div className="flex items-center gap-4">
+            {/* Back arrow button on all pages except home/login/signup/reset */}
+            {!hideBackButton && (
+              <button
+                onClick={() => navigate(-1)}
+                className="group flex items-center justify-center w-10 h-10 bg-white border-2 border-red-600 rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 focus:outline-none"
+                aria-label="Back"
+              >
+                <span className="text-red-600 text-2xl font-bold transition-colors duration-200 group-hover:text-white">←</span>
+              </button>
+            )}
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg ml-0">
+              AnimeFinder
+            </h1>
+          </div>
           
           <nav className="space-x-6 flex items-center">
             <Link 
@@ -91,12 +116,7 @@ export function App() {
           <Route path="/reset" element={<ResetPassword />} />
         </Routes>
       </main>
-      {!hideHeader && (
-        <footer className="bg-black/80 border-t border-red-700/30 py-8 mt-8">
-          <Contact />
-          <div className="text-center text-gray-500 text-xs mt-4">&copy; {new Date().getFullYear()} AnimeFinder. All rights reserved.</div>
-        </footer>
-      )}
+      {!hideHeader && <Footer />}
     </div>
   );
 }

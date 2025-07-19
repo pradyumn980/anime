@@ -56,10 +56,21 @@ export function AnimeDetails() {
   const navigate = useNavigate();
   const charactersRef = useRef<HTMLDivElement>(null);
   const recommendationsRef = useRef<HTMLDivElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
+
+  // Handle scroll for sticky back button
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const {
     data: anime,
@@ -121,15 +132,12 @@ export function AnimeDetails() {
         <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
+      {/* Sticky Back Button */}
+      {/* REMOVED: Sticky back button now in navbar */}
+
       <div className="relative z-10 p-6">
         {/* Enhanced Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-8 group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-full text-white font-semibold shadow-lg hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border border-purple-500/30"
-        >
-          <span className="transition-transform duration-300 group-hover:-translate-x-1">←</span>
-          Back
-        </button>
+        
 
         {/* Hero Section with Enhanced Design */}
         <div className="flex flex-col lg:flex-row gap-4 mb-8">
@@ -370,11 +378,14 @@ export function AnimeDetails() {
             </div>
           </div>
         )}
-        {/* Reviews Section (moved to end) */}
-        <section className="mb-8 bg-slate-800/40 backdrop-blur-lg border border-slate-700/50 rounded-2xl p-4 shadow-xl">
-          <h2 className="text-2xl font-black mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent text-center">
-            📝 Reviews
-          </h2>
+        {/* Reviews Section */}
+        <section className="mb-8 bg-gradient-to-br from-slate-900/40 to-slate-800/40 backdrop-blur-lg border border-slate-700/50 rounded-2xl p-6 shadow-xl">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold mb-1 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
+              📝 Reviews
+            </h2>
+            <p className="text-gray-400 text-xs">Share your thoughts about this anime</p>
+          </div>
           <Reviews animeId={anime.mal_id} />
         </section>
       </div>
@@ -453,92 +464,118 @@ function Reviews({ animeId }: { animeId: number }) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 rounded-xl p-4 shadow border border-slate-700/60 max-w-2xl mx-auto">
+    <div className="max-w-3xl mx-auto">
+      {/* Average Rating Display */}
       {avgRating && (
-        <div className="flex items-center gap-2 mb-2 justify-center">
-          <span className="text-yellow-400 font-bold text-lg">{avgRating}</span>
-          <Star className="text-yellow-400 w-5 h-5" fill="#facc15" />
-          <span className="text-slate-400 text-sm">({reviews.length} review{reviews.length > 1 ? 's' : ''})</span>
+        <div className="text-center mb-4 p-3 bg-gradient-to-br from-yellow-900/20 to-orange-900/20 rounded-xl border border-yellow-700/30">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="text-yellow-400 font-bold text-xl">{avgRating}</span>
+            <Star className="text-yellow-400 w-5 h-5" fill="#facc15" />
+          </div>
+          <span className="text-slate-300 text-sm">
+            {reviews.length} review{reviews.length > 1 ? 's' : ''} • Average Rating
+          </span>
         </div>
       )}
-      <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-2 items-center">
-        <div className="flex flex-col sm:flex-row gap-2 w-full">
-          <input
-            type="text"
-            className="flex-1 p-2 rounded border border-slate-600 bg-slate-900 text-white text-sm"
-            placeholder="Your name"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            maxLength={20}
+
+      {/* Review Form */}
+      <div className="bg-gradient-to-br from-slate-900/60 to-slate-800/60 rounded-xl p-4 shadow-lg border border-slate-700/60 mb-4">
+        <h3 className="text-lg font-bold text-white mb-3 text-center">Write Your Review</h3>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input
+              type="text"
+              className="w-full p-2 rounded-lg border border-slate-600 bg-slate-900 text-white text-sm focus:outline-none focus:border-pink-500 transition-colors"
+              placeholder="Your name"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              maxLength={20}
+            />
+            <div className="flex items-center gap-2 p-2 rounded-lg border border-slate-600 bg-slate-900">
+              <span className="text-slate-400 text-xs">Rating:</span>
+              <div className="flex gap-1">
+                {[1,2,3,4,5].map((star) => (
+                  <button
+                    type="button"
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className="focus:outline-none hover:scale-110 transition-transform"
+                  >
+                    <Star className={`w-4 h-4 ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-500'}`} />
+                  </button>
+                ))}
+              </div>
+              <span className="text-slate-400 text-xs ml-1">{rating ? `${rating}/5` : 'Rate'}</span>
+            </div>
+          </div>
+          
+          <textarea
+            className="w-full p-2 rounded-lg border border-slate-600 bg-slate-900 text-white text-sm focus:outline-none focus:border-pink-500 transition-colors resize-none"
+            placeholder="Share your thoughts about this anime..."
+            value={text}
+            onChange={e => setText(e.target.value)}
+            rows={3}
+            maxLength={300}
           />
-          <button
-            type="submit"
-            className="bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold py-1 px-4 rounded shadow hover:from-pink-600 hover:to-orange-600 text-sm"
-          >
-            Submit
-          </button>
-        </div>
-        <textarea
-          className="w-full p-2 rounded border border-slate-600 bg-slate-900 text-white text-sm"
-          placeholder="Write your review..."
-          value={text}
-          onChange={e => setText(e.target.value)}
-          rows={3}
-          maxLength={400}
-        />
-        {/* Star rating input */}
-        <div className="flex gap-1 items-center justify-center my-1">
-          {[1,2,3,4,5].map((star) => (
+          
+          <div className="flex items-center justify-between">
+            <div className="text-slate-400 text-xs">
+              {text.length}/300 characters
+            </div>
             <button
-              type="button"
-              key={star}
-              onClick={() => setRating(star)}
-              className="focus:outline-none"
+              type="submit"
+              className="bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:from-pink-600 hover:to-orange-600 transition-all duration-200 hover:scale-105 text-sm"
             >
-              <Star className={star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-500'} />
+              Submit Review
             </button>
-          ))}
-          <span className="ml-2 text-slate-400 text-xs">{rating ? `${rating} / 5` : 'Rate'}</span>
-        </div>
-        {error && <div className="text-red-400 text-xs w-full text-left">{error}</div>}
-        {success && <div className="text-emerald-400 text-xs w-full text-left">Review submitted!</div>}
-      </form>
-      <hr className="my-4 border-slate-700/50" />
-      <div className="space-y-4">
+          </div>
+          
+          {error && <div className="text-red-400 text-xs text-center bg-red-900/20 p-2 rounded-lg">{error}</div>}
+          {success && <div className="text-emerald-400 text-xs text-center bg-emerald-900/20 p-2 rounded-lg">✅ Review submitted!</div>}
+        </form>
+      </div>
+
+      {/* Reviews List */}
+      <div className="space-y-3">
         {reviews.length === 0 ? (
-          <div className="flex flex-col items-center text-slate-400 text-center">
-            <Star className="w-10 h-10 mb-2 text-slate-700" />
-            No reviews yet. Be the first to review!
+          <div className="flex flex-col items-center text-slate-400 text-center py-8">
+            <Star className="w-12 h-12 mb-3 text-slate-700" />
+            <h3 className="text-lg font-semibold mb-1">No reviews yet</h3>
+            <p className="text-xs">Be the first to share your thoughts!</p>
           </div>
         ) : (
           reviews.map((review, idx) => (
-            <div key={idx} className="relative flex gap-3 items-start bg-slate-800/90 border border-slate-700 rounded-lg p-3 shadow hover:shadow-lg transition-all group">
-              {/* Avatar */}
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold text-base shadow-md">
-                {review.username.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-bold text-orange-400 text-sm">{review.username}</span>
-                  <span className="text-xs text-slate-400">{review.date}</span>
-                  <span className="flex items-center gap-1 ml-2">
-                    {[1,2,3,4,5].map((star) => (
-                      <Star key={star} className={`w-3 h-3 ${star <= (review.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-500'}`} />
-                    ))}
-                  </span>
+            <div key={idx} className="relative bg-gradient-to-br from-slate-800/80 to-slate-700/80 border border-slate-600 rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-300 group">
+              <div className="flex gap-3 items-start">
+                {/* Avatar */}
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                  {review.username.charAt(0).toUpperCase()}
                 </div>
-                <div className="text-white whitespace-pre-line text-sm">{review.text}</div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-bold text-orange-400 text-sm">{review.username}</span>
+                    <span className="text-xs text-slate-400">{review.date}</span>
+                    <div className="flex items-center gap-1">
+                      {[1,2,3,4,5].map((star) => (
+                        <Star key={star} className={`w-3 h-3 ${star <= (review.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-500'}`} />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="text-white text-sm leading-relaxed whitespace-pre-line">{review.text}</div>
+                </div>
+                
+                {/* Delete button for your own review */}
+                {review.username === username && (
+                  <button
+                    onClick={() => handleDelete(idx)}
+                    className="absolute top-2 right-2 text-red-400 hover:text-red-300 bg-slate-900/80 rounded px-2 py-1 text-xs shadow-md hover:bg-red-900/20 transition-all duration-200"
+                    title="Delete your review"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
-              {/* Delete button for your own review (by name) */}
-              {review.username === username && (
-                <button
-                  onClick={() => handleDelete(idx)}
-                  className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 bg-slate-900/80 rounded px-2 py-0.5 shadow"
-                  title="Delete your review"
-                >
-                  Delete
-                </button>
-              )}
             </div>
           ))
         )}

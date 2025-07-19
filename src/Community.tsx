@@ -61,16 +61,7 @@ export default function Community() {
             </div>
           </div>
 
-          {/* Reviews Card */}
-          <div className="bg-gradient-to-br from-yellow-900/40 to-yellow-800/20 backdrop-blur-sm border border-yellow-700/30 rounded-xl p-6 hover:scale-105 transition-all duration-300 hover:border-yellow-500/50">
-            <div className="text-center">
-              <div className="text-4xl mb-4">📝</div>
-              <h3 className="text-xl font-semibold text-white mb-3">Reviews</h3>
-              <p className="text-white/70 text-sm leading-relaxed">
-                Share your thoughts on anime series and read reviews from other community members.
-              </p>
-            </div>
-          </div>
+
 
           {/* Coming Soon Card */}
           <div className="bg-gradient-to-br from-gray-900/40 to-gray-800/20 backdrop-blur-sm border border-gray-700/30 rounded-xl p-6 hover:scale-105 transition-all duration-300 hover:border-gray-500/50">

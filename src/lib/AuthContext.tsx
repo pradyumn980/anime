@@ -72,6 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("token");
     delete axios.defaults.headers.common["Authorization"];
     setUser(null);
+    // Clear anime search data
+    localStorage.removeItem('animeSearchParams');
+    localStorage.removeItem('animeSearchResults');
   };
 
   
