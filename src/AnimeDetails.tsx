@@ -134,7 +134,7 @@ export function AnimeDetails() {
 
       {/* Sticky Back Button */}
       {/* REMOVED: Sticky back button now in navbar */}
-
+      //
       <div className="relative z-10 p-6">
         {/* Enhanced Back Button */}
         
