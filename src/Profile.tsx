@@ -14,6 +14,7 @@ type UserWithSecurity = {
   securityQuestion?: string;
   securityAnswer?: string;
 };
+//bggfg
 
 export function Profile() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
