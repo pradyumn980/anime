@@ -5,7 +5,7 @@ import avatarRoutes from './routes/avatarRoutes.js'
 import connectDB from "./config/database.js";
 import cors from "cors";
 import dotenv from "dotenv";
-
+// import path from "path";
 dotenv.config();
 connectDB();
 console.log("Mongo URI:", process.env.MONGODB_URI);
