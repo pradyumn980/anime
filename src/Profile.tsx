@@ -29,6 +29,7 @@ export function Profile() {
     avatar: user?.avatar || "",
   });
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [newAvatarUrl, setNewAvatarUrl] = useState("");
   const [avatarError, setAvatarError] = useState("");
 
@@ -84,8 +85,16 @@ export function Profile() {
   };
 
   const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   return (
@@ -348,6 +357,46 @@ export function Profile() {
                 >
                   Save
                 </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-[#1f2937] to-[#374151] rounded-2xl p-8 w-full max-w-md border border-gray-700/50 shadow-2xl backdrop-blur-sm">
+            <div className="text-center mb-6">
+             
+              <h3 className="text-2xl font-bold text-white mb-2">Confirm Logout</h3>
+              <p className="text-gray-300 leading-relaxed">
+                Are you sure you want to logout from your account?
+              </p>
+              <p className="text-sm text-gray-400 mt-2">
+                You'll need to login again to access your profile.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <Button
+                onClick={confirmLogout}
+                className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                 Yes, Logout
+              </Button>
+              <Button
+                onClick={cancelLogout}
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                Cancel
+              </Button>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-gray-600/30">
+              <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+                <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                <span>Your session will be terminated</span>
               </div>
             </div>
           </div>

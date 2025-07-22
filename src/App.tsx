@@ -44,12 +44,14 @@ export function App() {
             {/* Back arrow button on all pages except home/login/signup/reset */}
             {!hideBackButton && (
               <button
-                onClick={() => navigate(-1)}
-                className="group flex items-center justify-center w-10 h-10 bg-white border-2 border-red-600 rounded-full shadow-lg hover:bg-red-600 transition-all duration-200 focus:outline-none"
-                aria-label="Back"
-              >
-                <span className="text-red-600 text-2xl font-bold transition-colors duration-200 group-hover:text-white">←</span>
-              </button>
+              onClick={() => navigate(-1)}
+              className="text-white/90 hover:text-white transition duration-200 hover:scale-105 px-4 py-2 rounded-lg hover:bg-red-700/20 backdrop-blur-sm border border-transparent hover:border-red-700/50 flex items-center justify-center"
+              title="Go Back"
+            >
+              <span className="text-3xl">←</span>
+            </button>
+            
+              
             )}
             <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-emerald-400 bg-clip-text text-transparent drop-shadow-lg ml-0">
               AnimeFinder

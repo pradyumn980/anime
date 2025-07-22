@@ -110,7 +110,7 @@ export function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] flex items-center justify-center">
+      <div className="fixed inset-0 bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] flex items-center justify-center z-50">
         <Loader />
       </div>
     );
@@ -118,7 +118,7 @@ export function Home() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] flex items-center justify-center">
+      <div className="fixed inset-0 bg-gradient-to-b from-black via-[#0f172a] to-[#1f2937] flex items-center justify-center z-50">
         <div className="text-center">
           <p className="text-red-500 text-xl mb-4">⚠️ Error loading anime</p>
           <p className="text-gray-400">Please try refreshing the page</p>
