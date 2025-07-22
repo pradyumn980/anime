@@ -10,7 +10,7 @@ dotenv.config();
 connectDB();
 console.log("Mongo URI:", process.env.MONGODB_URI);
 const app = express();
-
+//ilu
 app.use(cors({ origin: "http://localhost:9000", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
